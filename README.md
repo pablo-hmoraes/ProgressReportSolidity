@@ -133,7 +133,17 @@ Podemos declarar um mapping usando a seguinte sintaxe
 ## 4.3 Structs
 Solidity também contempla **structs**. Structs são utilizadas para agrupar variáveis que fazem sentido estarem juntas. Essa utilidade é bem parecida com a dos contracts, porém contracts custam **gas**, enquanto structs não. 
 
-## Low-level Calls
+## 4.4 ABI Array
+O **ABI (Application Binary Interface) Array** contém todas as funções, inputs, outputs e variáveis e seus tipos de um smart contract. 
+
+O ABI fica armazenado em um arquivo JSON no projeto do seu smart contract. 
+
+Exemplo de um ABI Array:
+
+![abi](./images/abi.webp)
+
+É importante entendermos o ABI Array pois iremos utilizá-lo nas funções da biblioteca **web3.js**.
+
 
 # 5. WEB3.js
 
