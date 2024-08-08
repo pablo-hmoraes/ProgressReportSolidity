@@ -1,7 +1,6 @@
 # Progress Report Solidity
 
 # 1. Introdução
-
 Solidity é a principal linguagem para escrever **Smart Contracts** na rede Ethereum. 
 
 Smart Contracts são "acordos" digitais que são assinados e armazenados numa rede blockchain, onde são executados automaticamente quando os termos e condições do contrato são cumpridos.
@@ -11,7 +10,6 @@ Solidity é uma linguagem orientada a objetos e de alto nível de abstração.
 Solidity é executada sobre a **Ethereum Virtual Machine (EVM)**. A EVM é um ambiente virtual descentralizado que executa códigos ao longo de todos os nós da rede Ethereum. Os nós rodam a EVM para executar os smart contracts, usando **gas** para mensurar o esforço computacional exigido pelas operações daquele contrato.  
 
 # 2. Solidity Básico
-
 ## 2.1 Contracts
 Como foi dito acima, o Solidity é uma linguagem orientada a objetos. Porém, por se tratar de uma linguagem muito voltada ao desenvolvimento de smart contracts, os objetos em Solidity são basicamente contratos. 
 
@@ -62,7 +60,6 @@ Outro tipo de dado importante de destacar é o o **address**. O tipo address pos
 - **adress payable:** O mesmo que o address, mas também possui as variáveis de estado **transfer** e **send**.
 
 ## 2.3 View vs Pure Functions
-
 Em Solidity podemos declarar funções com dois modificadores: 
 - **View:** Uma função ``view`` é uma que lê as variáveis de estado do contrato, mas não consegue escrever sobre o estado. Um exemplo seria uma função getter.
 - **Pure:** Uma função ``pure`` é uma que não lê e nem escreve sobre as variáveis de estado do contrato. Essas funções apenas conseguem acessar suas próprias variáveis e outras funções ``pure``.
@@ -97,17 +94,51 @@ contract ExampleConstructor {
 ```
 
 # 3. MetaMask
-
 MetaMask é um software de **crypto-wallet**, ou seja, é utilizado para permitir a interação do usuário com a blockchain. A MetaMask te permite comprar, vender, e trocar ativos crypto na rede Ethereum.
 
 Para utilizar a MetaMask, basta obter o plugin ou add-on no seu navegador e criar uma conta. Após criar a conta, a MetaMask irá te disponibilizar uma frase, chamada de **secret recovery phrase**. A secret phrase é composta por 12 palavras. Os seus fundos são conectados à essa frase e te permitem recuperá-los caso perca acesso à sua conta. Por isso, é muito importante que você guarde essa frase de maneira segura.
 
-# Solidity Intermediário
+
+# 4. Solidity Intermediário
+## 4.1 ``payable`` Modifier
+Em Solidity podemos especificar que certa funcionalidade de um contrato irá exigir um pagamento de Eth. Fazemos isso utilizando o modificador ``payable`` na declaração de uma função. 
+
+```
+//SPDX-License-Identifier: MIT
+
+pragma solidity 0.8.15;
+
+contract SampleContract {
+    string public myString = "Hello World";
+
+    function updateString(string memory _newString) public payable {
+        if(msg.value == 1 ether) {
+            myString = _newString;
+        } else {
+            payable(msg.sender).transfer(msg.value);
+        }
+    }
+}
+```
+
+O objeto ``msg`` é uma variável global que contém informações importantes sobre o smart contract e a blockchain. No código acima utilizamos esse objeto para verificar o valor de Eth enviado na transação e o endereço da conta que fez a transação.
+
+## 4.2 Mappings
+Solidity possui o tipo de dado ``mapping``. Podemos pensar nos ``mappings`` como tabelas hash, onde armazenamos os dados em pares chave-valor. A diferença entre eles é que em Solidity o valor da chave não é armazenada no mapping, mas sim o seu valor hash ``keccak256`` (um algoritmo de hasheamento).
+
+Podemos declarar um mapping usando a seguinte sintaxe
+
+``mapping(KeyType KeyName? => ValueType ValueName?) VariableName``
+
+## 4.3 Structs
+Solidity também contempla **structs**. Structs são utilizadas para agrupar variáveis que fazem sentido estarem juntas. Essa utilidade é bem parecida com a dos contracts, porém contracts custam **gas**, enquanto structs não. 
+
+## Low-level Calls
+
+# 5. WEB3.js
 
 
-# WEB3.js
-
-# ERC20 Token
+# 6. ERC20 Token
 
 # NFT
 - openzeppelin
