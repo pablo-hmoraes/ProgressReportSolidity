@@ -144,17 +144,130 @@ Exemplo de um ABI Array:
 
 É importante entendermos o ABI Array pois iremos utilizá-lo nas funções da biblioteca **web3.js**.
 
+## 4.5 Events
+
+Eventos em Solidity nos dão uma abstração em cima da funcionalidade de _logging_ da EVM. As aplicações podem se inscrever e "escutar" esses eventos através da interface RPC (Remote Procedure Call) de um cliente Ethereum. Essa abstração nos permite armazenar e comunicar informação através da blockchain de maneira eficiente (gastando menos gas).
+
+Exemplo de uso de eventos em Solidity:
+
+```
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.16;
+
+contract EventExample {
+
+    mapping(address => uint) public tokenBalance;
+
+    event TokensSent(address _from, address _to, uint _amount);
+
+    constructor() {
+        tokenBalance[msg.sender] = 100;
+    }
+
+    function sendToken(address _to, uint _amount) public returns(bool) {
+        require(tokenBalance[msg.sender] >= _amount, "Not enough tokens");
+        tokenBalance[msg.sender] -= _amount;
+        tokenBalance[_to] += _amount;
+
+        emit TokensSent(msg.sender, _to, _amount);
+
+        return true;
+    }
+}
+```
 
 # 5. WEB3.js
 
+``web3.js`` é uma coleção de bibliotecas JavaScript que nos permite interagir com nós da rede Ethereum usando **HTTP** ou **WebSocket**.
+
+O ``web3.js`` possui métodos que nos permite dar deploy em smart contracts, chamar funções de smart contracts, realizar transações na rede Ethereum, etc.
+
+Um exemplo de como podemos conectar à mainnet da Ethereum usando ``web3.js``:
+
+``` javascript
+const Web3 = require('web3');
+// cria uma instância web3
+const web3 = new Web3('https://mainnet.infura.io/v3/your-infura-project-id');
+// verifica a conexão
+web3.eth.net.isListening()
+ .then(() => console.log('Connected to Ethereum'))
+ .catch(error => console.error('Connection error:', error));
+```
 
 # 6. ERC20 Token
+ERC20 é um padrão para criação de **tokens fungíveis** na rede Ethereum. Tokens fungíveis são aqueles que são intercambiáveis, como moedas digitais, stable coins, tokens de governança, etc.
 
-# NFT
-- openzeppelin
-- truffle
-- hardhat
-- foundry
+Por definir um padrão, o ERC20 determina algumas funções obrigatórias e outras opcionais. 
 
-# Account Abstraction
+Podemos ver a implementação da interface do ERC20  [aqui](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol).
+
+Podemos usar o ERC20 como um template para criar nosso próprio token ao importar e herdar do contrato base do ERC20. Um exemplo de criação e deploy de um token viável seria:
+
+```
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract CoffeeToken is ERC20, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    event CoffeePurchased(address indexed receiver, address indexed buyer);
+
+    constructor() ERC20("CoffeeToken", "CFE") {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
+    }
+
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
+    }
+
+    function buyOneCoffee() public {
+        _burn(_msgSender(), 1);
+        emit CoffeePurchased(_msgSender(), _msgSender());
+    }
+
+    function buyOneCoffeeFrom(address account) public {
+        _spendAllowance(account, _msgSender(), 1);
+        _burn(account, 1);
+        emit CoffeePurchased(_msgSender(), account);
+    }
+}
+```
+
+# 7. ERC721 Token
+
+Assim como o ERC20, o **ERC721** é outro padrão de token, porém com certas diferenças. O ERC721 representa **Non-Fungible Tokens (NFTs)**, o que significa que cada token possui um número de série único e possui uma URL para mais metadados (imagens, músicas, etc).   
+
+## 7.1 Truffle
+**Truffle** é um framework para o desenvolvimento de smart contracts na rede Ethereum. É um framework **end-to-end**, ou seja, com ele podemos construir, testar, debugar e dar deploy em smart contracts usando a Truffle CLI. 
+
+Podemos usar ``truffle compile`` para compilar o smart contract. 
+
+Podemos dar deploy no smart contract usando ```truffle develop`` e depois ``migrate``. Porém, o Truffle é mais interessante quando damos deploy no token em diferentes redes. Por isso, usaremos Ganache.
+
+Para dar deploy numa rede Ganache, temos que instalá-lo, usando ``npm install -g ganache``. Depois iniciamos usando ``ganache``. Para o Truffle utilizar o Ganache, devemos especificar a rede no arquivo ``truffle-config.js`` colocando o seguinte código na seção ``networks`` do ``truffle-config.js``.
+
+```javascript
+module.exports = {
+    networks: {
+        ganache: {
+            host: "127.0.0.1",     // Localhost (default: none)
+            port: 8545,            // Standard Ethereum port (default: none)
+            network_id: "*",       // Any network (default: none)
+        },
+    }
+}
+```
+
+Para dar o deploy, usamos ``truffle migrate --network ganache``
+
+## 7.2 Hardhat
+Hardhat é muito similar ao Truffle, nos oferecendo maneiras de criar, testar e dar deploy em smart contracts na rede Ethereum.
+
+Uma das diferenças é que no Hardhat não existe o script de migração. Para dar deploy devemos criar um script manualmente. 
+
+
 
